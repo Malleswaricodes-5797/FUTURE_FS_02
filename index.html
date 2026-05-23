@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LeadFlow CRM - Task 2</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        .login-box, .dashboard { background: white; border-radius: 20px; padding: 30px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+        h2 { margin-bottom: 20px; color: #333; }
+        input, select, button { padding: 12px; margin: 5px; border-radius: 8px; border: 1px solid #ddd; }
+        button { background: #667eea; color: white; border: none; cursor: pointer; transition: 0.3s; }
+        button:hover { background: #5a67d8; transform: translateY(-2px); }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; }
+        .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 30px; }
+        .stat-card { background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 20px; border-radius: 15px; text-align: center; }
+        .stat-number { font-size: 32px; font-weight: bold; }
+        .hidden { display: none; }
+        .nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .logout-btn { background: #e53e3e; }
+        .status-new { color: #ed8936; font-weight: bold; }
+        .status-contacted { color: #4299e1; font-weight: bold; }
+        .status-converted { color: #48bb78; font-weight: bold; }
+        .action-btn { padding: 5px 10px; margin: 2px; font-size: 12px; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <!-- Login Section -->
+    <div id="loginSection">
+        <div class="login-box" style="max-width: 400px; margin: 100px auto;">
+            <h2 style="text-align:center;">🔐 LeadFlow CRM</h2>
+            <p style="text-align:center; color:#666; margin-bottom:20px;">Future Interns - Task 2</p>
+            <input type="text" id="loginUser" placeholder="Username" style="width:100%"><br>
+            <input type="password" id="loginPass" placeholder="Password" style="width:100%"><br>
+            <button onclick="login()" style="width:100%; margin-top:10px;">Login</button>
+            <p style="text-align:center; margin-top:15px; font-size:12px;">Demo: admin / admin123</p>
+        </div>
+    </div>
+
+    <!-- Dashboard Section -->
+    <div id="dashboardSection" class="hidden">
+        <div class="dashboard">
+            <div class="nav">
+                <h2>📊 LeadFlow CRM Dashboard</h2>
+                <button class="logout-btn" onclick="logout()">Logout</button>
+            </div>
+
+            <!-- Stats -->
+            <div class="stats" id="stats"></div>
+
+            <!-- Add Lead Form -->
+            <div style="background:#f7f7f7; padding:20px; border-radius:15px; margin-bottom:30px;">
+                <h3>➕ Add New Lead</h3>
+                <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px,1fr)); gap:10px;">
+                    <input type="text" id="leadName" placeholder="Full Name">
+                    <input type="email" id="leadEmail" placeholder="Email">
+                    <input type="text" id="leadPhone" placeholder="Phone">
+                    <select id="leadSource">
+                        <option value="website">Website</option>
+                        <option value="referral">Referral</option>
+                        <option value="social">Social Media</option>
+                    </select>
+                    <button onclick="addLead()">➕ Add Lead</button>
+                </div>
+            </div>
+
+            <!-- Leads Table -->
+            <h3>📋 All Leads</h3>
+            <div style="overflow-x:auto;">
+                <table id="leadsTable">
+                    <thead>
+                        <tr><th>Name</th><th>Email</th><th>Phone</th><th>Source</th><th>Status</th><th>Actions</th></tr>
+                    </thead>
+                    <tbody id="leadsBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Sample lead data (stored in localStorage)
+    let leads = JSON.parse(localStorage.getItem('crm_leads')) || [
+        { id: 1, name: "Rahul Sharma", email: "rahul@example.com", phone: "9876543210", source: "website", status: "new" },
+        { id: 2, name: "Priya Patel", email: "priya@example.com", phone: "8765432109", source: "referral", status: "contacted" },
+        { id: 3, name: "Amit Kumar", email: "amit@example.com", phone: "7654321098", source: "social", status: "converted" }
+    ];
+    let nextId = 4;
+
+    function saveLeads() {
+        localStorage.setItem('crm_leads', JSON.stringify(leads));
+    }
+
+    function login() {
+        const user = document.getElementById('loginUser').value;
+        const pass = document.getElementById('loginPass').value;
+        if(user === 'admin' && pass === 'admin123') {
+            localStorage.setItem('crm_logged_in', 'true');
+            showDashboard();
+            loadLeads();
+            loadStats();
+        } else {
+            alert('Invalid credentials! Use admin / admin123');
+        }
+    }
+
+    function logout() {
+        localStorage.removeItem('crm_logged_in');
+        document.getElementById('loginSection').style.display = 'block';
+        document.getElementById('dashboardSection').classList.add('hidden');
+    }
+
+    function showDashboard() {
+        document.getElementById('loginSection').style.display = 'none';
+        document.getElementById('dashboardSection').classList.remove('hidden');
+    }
+
+    function loadLeads() {
+        const tbody = document.getElementById('leadsBody');
+        if(leads.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">No leads found. Add your first lead!</td></tr>';
+            return;
+        }
+        tbody.innerHTML = leads.map(lead => `
+            <tr>
+                <td><strong>${lead.name}</strong></td>
+                <td>${lead.email}</td>
+                <td>${lead.phone || '-'}</td>
+                <td>${lead.source}</td>
+                <td class="status-${lead.status}">${lead.status.toUpperCase()}</td>
+                <td>
+                    <button class="action-btn" onclick="updateStatus(${lead.id}, 'contacted')">📞 Contact</button>
+                    <button class="action-btn" onclick="updateStatus(${lead.id}, 'converted')">✅ Convert</button>
+                    <button class="action-btn" onclick="deleteLead(${lead.id})" style="background:#e53e3e;">🗑 Delete</button>
+                </td>
+            </tr>
+        `).join('');
+    }
+
+    function addLead() {
+        const name = document.getElementById('leadName').value;
+        const email = document.getElementById('leadEmail').value;
+        const phone = document.getElementById('leadPhone').value;
+        const source = document.getElementById('leadSource').value;
+        
+        if(!name || !email) {
+            alert('Name and Email are required!');
+            return;
+        }
+        
+        leads.push({
+            id: nextId++,
+            name: name,
+            email: email,
+            phone: phone,
+            source: source,
+            status: 'new'
+        });
+        saveLeads();
+        loadLeads();
+        loadStats();
+        
+        // Clear form
+        document.getElementById('leadName').value = '';
+        document.getElementById('leadEmail').value = '';
+        document.getElementById('leadPhone').value = '';
+    }
+
+    function updateStatus(id, newStatus) {
+        const lead = leads.find(l => l.id === id);
+        if(lead) {
+            lead.status = newStatus;
+            saveLeads();
+            loadLeads();
+            loadStats();
+        }
+    }
+
+    function deleteLead(id) {
+        if(confirm('Are you sure you want to delete this lead?')) {
+            leads = leads.filter(l => l.id !== id);
+            saveLeads();
+            loadLeads();
+            loadStats();
+        }
+    }
+
+    function loadStats() {
+        const total = leads.length;
+        const newLeads = leads.filter(l => l.status === 'new').length;
+        const contacted = leads.filter(l => l.status === 'contacted').length;
+        const converted = leads.filter(l => l.status === 'converted').length;
+        
+        document.getElementById('stats').innerHTML = `
+            <div class="stat-card"><div class="stat-number">${total}</div><div>Total Leads</div></div>
+            <div class="stat-card"><div class="stat-number">${newLeads}</div><div>New Leads</div></div>
+            <div class="stat-card"><div class="stat-number">${contacted}</div><div>Contacted</div></div>
+            <div class="stat-card"><div class="stat-number">${converted}</div><div>Converted</div></div>
+        `;
+    }
+
+    // Check if already logged in
+    if(localStorage.getItem('crm_logged_in') === 'true') {
+        showDashboard();
+        loadLeads();
+        loadStats();
+    }
+</script>
+</body>
+</html>
