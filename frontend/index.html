@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LeadFlow CRM | FUTURE_FS_02</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#07080f;--bg2:#0d0e1a;--bg3:#121320;--card:#0f1020;--border:rgba(99,102,241,0.18);--accent:#6366f1;--accent2:#818cf8;--green:#22c55e;--yellow:#eab308;--red:#ef4444;--text:#e2e4f0;--muted:#6b7280;--sidebar-w:260px;}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);display:flex;min-height:100vh;overflow-x:hidden;}
+.sidebar{width:var(--sidebar-w);min-height:100vh;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;left:0;top:0;z-index:100;}
+.logo{padding:1.8rem 1.5rem 1.2rem;border-bottom:1px solid var(--border);}
+.logo h1{font-family:'Syne',sans-serif;font-size:1.3rem;font-weight:800;color:var(--text);}
+.logo h1 span{color:var(--accent2);}
+.logo p{font-size:0.7rem;color:var(--muted);margin-top:0.2rem;font-family:'JetBrains Mono',monospace;letter-spacing:0.08em;}
+.nav{padding:1.2rem 0.8rem;flex:1;}
+.nav-item{display:flex;align-items:center;gap:0.75rem;padding:0.75rem 0.9rem;border-radius:10px;cursor:pointer;font-size:0.875rem;font-weight:500;color:var(--muted);transition:all 0.2s;margin-bottom:0.25rem;}
+.nav-item svg{width:18px;height:18px;flex-shrink:0;}
+.nav-item:hover{color:var(--text);background:rgba(99,102,241,0.08);}
+.nav-item.active{color:var(--accent2);background:rgba(99,102,241,0.15);}
+.nav-section{font-size:0.65rem;color:var(--muted);letter-spacing:0.15em;text-transform:uppercase;padding:0.8rem 0.9rem 0.4rem;font-family:'JetBrains Mono',monospace;}
+.sidebar-footer{padding:1rem 1.2rem;border-top:1px solid var(--border);}
+.admin-badge{display:flex;align-items:center;gap:0.6rem;}
+.admin-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:700;color:#fff;}
+.admin-info p{font-size:0.8rem;font-weight:600;}
+.admin-info span{font-size:0.7rem;color:var(--muted);}
+.main{margin-left:var(--sidebar-w);flex:1;display:flex;flex-direction:column;min-height:100vh;}
+.topbar{position:sticky;top:0;z-index:90;background:rgba(7,8,15,0.92);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:1rem 2rem;display:flex;align-items:center;justify-content:space-between;}
+.topbar-title{font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:700;}
+.topbar-right{display:flex;align-items:center;gap:1rem;}
+.btn{display:inline-flex;align-items:center;gap:0.5rem;padding:0.6rem 1.2rem;border-radius:8px;font-size:0.82rem;font-weight:600;cursor:pointer;transition:all 0.2s;border:none;font-family:'Inter',sans-serif;}
+.btn-primary{background:var(--accent);color:#fff;}
+.btn-primary:hover{background:var(--accent2);transform:translateY(-1px);}
+.btn-outline{background:transparent;border:1px solid var(--border);color:var(--muted);}
+.btn-outline:hover{border-color:var(--accent);color:var(--accent2);}
+.btn-sm{padding:0.4rem 0.8rem;font-size:0.75rem;}
+.btn-danger{background:rgba(239,68,68,0.1);color:var(--red);border:1px solid rgba(239,68,68,0.2);}
+.btn-danger:hover{background:var(--red);color:#fff;}
+.btn-success{background:rgba(34,197,94,0.1);color:var(--green);border:1px solid rgba(34,197,94,0.2);}
+.content{padding:2rem;flex:1;}
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1.2rem;margin-bottom:2rem;}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1.4rem 1.5rem;position:relative;overflow:hidden;}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--accent-color,var(--accent));}
+.stat-label{font-size:0.75rem;color:var(--muted);margin-bottom:0.7rem;font-weight:500;letter-spacing:0.05em;text-transform:uppercase;}
+.stat-num{font-family:'Syne',sans-serif;font-size:2rem;font-weight:800;color:var(--text);}
+.stat-sub{font-size:0.72rem;color:var(--muted);margin-top:0.3rem;}
+.stat-icon{position:absolute;top:1.2rem;right:1.2rem;width:36px;height:36px;border-radius:8px;background:rgba(99,102,241,0.1);display:flex;align-items:center;justify-content:center;}
+.toolbar{display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem;flex-wrap:wrap;}
+.search-wrap{position:relative;flex:1;min-width:200px;}
+.search-wrap svg{position:absolute;left:0.9rem;top:50%;transform:translateY(-50%);width:16px;height:16px;color:var(--muted);}
+.search-input{width:100%;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:0.65rem 0.9rem 0.65rem 2.4rem;color:var(--text);font-size:0.85rem;font-family:'Inter',sans-serif;outline:none;transition:border 0.2s;}
+.search-input:focus{border-color:var(--accent);}
+.search-input::placeholder{color:var(--muted);}
+.filter-select{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:0.65rem 1rem;color:var(--text);font-size:0.82rem;outline:none;cursor:pointer;font-family:'Inter',sans-serif;}
+.filter-select:focus{border-color:var(--accent);}
+.table-wrap{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;}
+.table-head{padding:1.2rem 1.5rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.table-head h3{font-family:'Syne',sans-serif;font-size:0.95rem;font-weight:700;}
+table{width:100%;border-collapse:collapse;}
+thead tr{border-bottom:1px solid var(--border);}
+th{padding:0.9rem 1.2rem;text-align:left;font-size:0.72rem;color:var(--muted);font-weight:600;letter-spacing:0.08em;text-transform:uppercase;white-space:nowrap;}
+td{padding:1rem 1.2rem;font-size:0.85rem;border-bottom:1px solid rgba(255,255,255,0.04);vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:rgba(99,102,241,0.04);}
+.lead-name{font-weight:600;color:var(--text);}
+.lead-sub{font-size:0.78rem;color:var(--muted);}
+.source-badge{display:inline-block;padding:0.2rem 0.6rem;border-radius:100px;font-size:0.68rem;font-weight:600;letter-spacing:0.05em;font-family:'JetBrains Mono',monospace;}
+.source-website{background:rgba(99,102,241,0.12);color:var(--accent2);}
+.source-referral{background:rgba(34,197,94,0.12);color:var(--green);}
+.source-social{background:rgba(234,179,8,0.12);color:var(--yellow);}
+.source-direct{background:rgba(148,163,184,0.12);color:#94a3b8;}
+.status-pill{display:inline-flex;align-items:center;gap:0.35rem;padding:0.3rem 0.8rem;border-radius:100px;font-size:0.75rem;font-weight:600;cursor:pointer;transition:all 0.2s;border:none;font-family:'Inter',sans-serif;}
+.status-pill::before{content:'';width:6px;height:6px;border-radius:50%;background:currentColor;}
+.status-new{background:rgba(99,102,241,0.12);color:var(--accent2);}
+.status-contacted{background:rgba(234,179,8,0.12);color:var(--yellow);}
+.status-converted{background:rgba(34,197,94,0.12);color:var(--green);}
+.status-lost{background:rgba(239,68,68,0.1);color:var(--red);}
+.actions{display:flex;gap:0.5rem;align-items:center;}
+.empty{text-align:center;padding:3rem;color:var(--muted);}
+.empty p{font-size:0.9rem;}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,0.75);backdrop-filter:blur(4px);z-index:200;display:none;align-items:center;justify-content:center;}
+.overlay.show{display:flex;}
+.modal{background:var(--bg2);border:1px solid var(--border);border-radius:20px;padding:2rem;width:100%;max-width:520px;max-height:90vh;overflow-y:auto;animation:modalIn 0.3s cubic-bezier(0.34,1.56,0.64,1);}
+@keyframes modalIn{from{opacity:0;transform:scale(0.92) translateY(20px);}to{opacity:1;transform:none;}}
+.modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;}
+.modal-header h2{font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:700;}
+.modal-close{background:none;border:none;color:var(--muted);cursor:pointer;font-size:1.3rem;line-height:1;padding:0.2rem;}
+.form-group{margin-bottom:1.1rem;}
+.form-group label{display:block;font-size:0.78rem;color:var(--muted);margin-bottom:0.4rem;font-weight:500;letter-spacing:0.04em;}
+.form-group input,.form-group select,.form-group textarea{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:0.75rem 1rem;color:var(--text);font-size:0.88rem;font-family:'Inter',sans-serif;outline:none;transition:border 0.2s;resize:none;}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--accent);}
+.form-group textarea{min-height:90px;}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+.modal-footer{display:flex;gap:0.8rem;justify-content:flex-end;margin-top:1.5rem;}
+.notes-panel{position:fixed;right:0;top:0;bottom:0;width:380px;background:var(--bg2);border-left:1px solid var(--border);z-index:150;transform:translateX(100%);transition:transform 0.3s ease;display:flex;flex-direction:column;}
+.notes-panel.open{transform:translateX(0);}
+.notes-header{padding:1.5rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.notes-header h3{font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;}
+.notes-body{flex:1;overflow-y:auto;padding:1.2rem;}
+.note-item{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:1rem;margin-bottom:0.8rem;}
+.note-text{font-size:0.85rem;line-height:1.6;color:var(--text);}
+.note-meta{font-size:0.7rem;color:var(--muted);margin-top:0.5rem;font-family:'JetBrains Mono',monospace;}
+.notes-footer{padding:1.2rem;border-top:1px solid var(--border);}
+.note-input-wrap{display:flex;gap:0.6rem;}
+.note-input-wrap textarea{flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:0.7rem;color:var(--text);font-size:0.83rem;font-family:'Inter',sans-serif;resize:none;outline:none;min-height:70px;}
+.note-input-wrap textarea:focus{border-color:var(--accent);}
+#loginPage{position:fixed;inset:0;background:var(--bg);z-index:1000;display:flex;align-items:center;justify-content:center;}
+.login-card{background:var(--bg2);border:1px solid var(--border);border-radius:20px;padding:2.5rem;width:100%;max-width:420px;text-align:center;}
+.login-card h1{font-family:'Syne',sans-serif;font-size:1.8rem;font-weight:800;margin-bottom:0.4rem;}
+.login-card p{color:var(--muted);font-size:0.88rem;margin-bottom:2rem;}
+.login-logo{font-size:2.5rem;margin-bottom:1rem;}
+.error-msg{color:var(--red);font-size:0.8rem;margin-top:-0.5rem;margin-bottom:0.8rem;display:none;}
+.toast{position:fixed;bottom:1.5rem;right:1.5rem;z-index:999;background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:0.9rem 1.4rem;font-size:0.85rem;color:var(--text);transform:translateY(80px);opacity:0;transition:all 0.35s cubic-bezier(0.34,1.56,0.64,1);display:flex;align-items:center;gap:0.6rem;}
+.toast.show{transform:translateY(0);opacity:1;}
+.charts-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-bottom:2rem;}
+.chart-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1.5rem;}
+.chart-card h3{font-family:'Syne',sans-serif;font-size:0.9rem;font-weight:700;margin-bottom:1.2rem;}
+.bar-item{margin-bottom:0.9rem;}
+.bar-label{display:flex;justify-content:space-between;font-size:0.78rem;color:var(--muted);margin-bottom:0.3rem;}
+.bar-track{height:6px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden;}
+.bar-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width 1s ease;}
+.pie-list{display:flex;flex-direction:column;gap:0.6rem;}
+.pie-item{display:flex;align-items:center;gap:0.7rem;font-size:0.82rem;}
+.pie-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.pie-label{flex:1;color:var(--muted);}
+.pie-val{font-weight:600;color:var(--text);}
+@media(max-width:900px){.stats-grid{grid-template-columns:repeat(2,1fr);}.charts-grid{grid-template-columns:1fr;}}
+@media(max-width:680px){.sidebar{display:none;}.main{margin-left:0;}.form-row{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginPage">
+  <div class="login-card">
+    <div class="login-logo">📊</div>
+    <h1>LeadFlow <span style="color:var(--accent2)">CRM</span></h1>
+    <p>Secure Admin Access · FUTURE_FS_02</p>
+    <div class="form-group" style="text-align:left">
+      <label>Username</label>
+      <input type="text" id="loginUser" placeholder="admin">
+    </div>
+    <div class="form-group" style="text-align:left">
+      <label>Password</label>
+      <input type="password" id="loginPass" placeholder="••••••••">
+    </div>
+    <p class="error-msg" id="loginError">❌ Invalid credentials. Use admin / admin123</p>
+    <button class="btn btn-primary" style="width:100%;justify-content:center;padding:0.85rem;" onclick="doLogin()">Sign In →</button>
+    <p style="font-size:0.72rem;color:var(--muted);margin-top:1.2rem;">Demo: <code style="color:var(--accent2)">admin</code> / <code style="color:var(--accent2)">admin123</code></p>
+  </div>
+</div>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="logo">
+    <h1>Lead<span>Flow</span></h1>
+    <p>FUTURE_FS_02 · Mini CRM</p>
+  </div>
+  <nav class="nav">
+    <div class="nav-section">Main</div>
+    <div class="nav-item active" onclick="showView('dashboard')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      Dashboard
+    </div>
+    <div class="nav-item" onclick="showView('leads')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+      All Leads
+    </div>
+    <div class="nav-item" onclick="showView('analytics')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      Analytics
+    </div>
+    <div class="nav-section">Filter by Status</div>
+    <div class="nav-item" onclick="filterByStatus('new')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      New Leads
+    </div>
+    <div class="nav-item" onclick="filterByStatus('contacted')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 10.8 19.79 19.79 0 01-.0 2.18 2 2 0 012 0h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 14.92z"/></svg>
+      Contacted
+    </div>
+    <div class="nav-item" onclick="filterByStatus('converted')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+      Converted
+    </div>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="admin-badge">
+      <div class="admin-avatar">A</div>
+      <div class="admin-info"><p>Admin</p><span>Super Admin</span></div>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+  <div class="topbar">
+    <span class="topbar-title" id="pageTitle">Dashboard</span>
+    <div class="topbar-right">
+      <button class="btn btn-primary" onclick="openAddModal()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Add Lead
+      </button>
+      <button class="btn btn-outline btn-sm" onclick="logout()">Logout</button>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- DASHBOARD -->
+    <div id="view-dashboard">
+      <div class="stats-grid" id="statsGrid"></div>
+      <div class="charts-grid">
+        <div class="chart-card"><h3>Leads by Status</h3><div class="pie-list" id="statusChart"></div></div>
+        <div class="chart-card"><h3>Leads by Source</h3><div id="sourceChart"></div></div>
+      </div>
+      <div class="table-wrap">
+        <div class="table-head"><h3>Recent Leads</h3><button class="btn btn-outline btn-sm" onclick="showView('leads')">View All →</button></div>
+        <table><thead><tr><th>Name</th><th>Email</th><th>Source</th><th>Status</th><th>Date</th></tr></thead>
+        <tbody id="recentLeads"></tbody></table>
+      </div>
+    </div>
+
+    <!-- LEADS -->
+    <div id="view-leads" style="display:none">
+      <div class="toolbar">
+        <div class="search-wrap">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input class="search-input" type="text" id="searchInput" placeholder="Search name, email, company…" oninput="renderLeadsTable()">
+        </div>
+        <select class="filter-select" id="statusFilter" onchange="renderLeadsTable()">
+          <option value="">All Statuses</option>
+          <option value="new">New</option>
+          <option value="contacted">Contacted</option>
+          <option value="converted">Converted</option>
+          <option value="lost">Lost</option>
+        </select>
+        <select class="filter-select" id="sourceFilter" onchange="renderLeadsTable()">
+          <option value="">All Sources</option>
+          <option value="website">Website</option>
+          <option value="referral">Referral</option>
+          <option value="social">Social Media</option>
+          <option value="direct">Direct</option>
+        </select>
+        <button class="btn btn-success btn-sm" onclick="exportCSV()">↓ Export CSV</button>
+      </div>
+      <div class="table-wrap">
+        <div class="table-head">
+          <h3>All Leads <span id="leadCount" style="color:var(--muted);font-size:0.8rem;font-weight:400;margin-left:0.5rem;font-family:'JetBrains Mono',monospace;"></span></h3>
+        </div>
+        <table><thead><tr><th>Name / Company</th><th>Email</th><th>Phone</th><th>Source</th><th>Status</th><th>Date Added</th><th>Actions</th></tr></thead>
+        <tbody id="leadsTableBody"></tbody></table>
+        <div class="empty" id="emptyState" style="display:none"><p>No leads found. Add your first lead or adjust filters.</p></div>
+      </div>
+    </div>
+
+    <!-- ANALYTICS -->
+    <div id="view-analytics" style="display:none">
+      <div class="stats-grid" id="analyticsStats"></div>
+      <div class="charts-grid">
+        <div class="chart-card"><h3>Conversion Funnel</h3><div id="funnelChart"></div></div>
+        <div class="chart-card"><h3>Source Performance</h3><div id="sourcePerfChart"></div></div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<!-- ADD/EDIT MODAL -->
+<div class="overlay" id="leadModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="modalTitle">Add New Lead</h2>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <input type="hidden" id="editId">
+    <div class="form-row">
+      <div class="form-group"><label>First Name *</label><input type="text" id="fName" placeholder="John"></div>
+      <div class="form-group"><label>Last Name *</label><input type="text" id="lName" placeholder="Doe"></div>
+    </div>
+    <div class="form-group"><label>Email Address *</label><input type="email" id="fEmail" placeholder="john@example.com"></div>
+    <div class="form-row">
+      <div class="form-group"><label>Phone</label><input type="tel" id="fPhone" placeholder="+91 9876543210"></div>
+      <div class="form-group"><label>Company</label><input type="text" id="fCompany" placeholder="Acme Corp"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Lead Source *</label>
+        <select id="fSource">
+          <option value="website">Website Contact Form</option>
+          <option value="referral">Referral</option>
+          <option value="social">Social Media</option>
+          <option value="direct">Direct Outreach</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Status</label>
+        <select id="fStatus">
+          <option value="new">New</option>
+          <option value="contacted">Contacted</option>
+          <option value="converted">Converted</option>
+          <option value="lost">Lost</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group"><label>Initial Note / Follow-up</label><textarea id="fNote" placeholder="Any notes about this lead…"></textarea></div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveLead()">Save Lead →</button>
+    </div>
+  </div>
+</div>
+
+<!-- NOTES PANEL -->
+<div class="notes-panel" id="notesPanel">
+  <div class="notes-header">
+    <div>
+      <h3 id="notesPanelName">Lead Notes</h3>
+      <span style="font-size:0.72rem;color:var(--muted);" id="notesPanelEmail"></span>
+    </div>
+    <button class="modal-close" onclick="closeNotes()">✕</button>
+  </div>
+  <div class="notes-body" id="notesList"></div>
+  <div class="notes-footer">
+    <div class="note-input-wrap">
+      <textarea id="newNoteText" placeholder="Add a follow-up note…"></textarea>
+      <button class="btn btn-primary btn-sm" onclick="addNote()" style="align-self:flex-end">Add</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── DEMO DATA ──
+// In production: replace with fetch() calls to your Node.js/Express API endpoints
+let leads=[
+  {id:1,firstName:'Aarav',lastName:'Sharma',email:'aarav.sharma@gmail.com',phone:'+91 9876543210',company:'TechVentures',source:'website',status:'new',date:'2026-05-01',notes:[{text:'Filled contact form about web dev services',date:'2026-05-01 09:15'}]},
+  {id:2,firstName:'Priya',lastName:'Patel',email:'priya.patel@startup.io',phone:'+91 8765432109',company:'StartupIO',source:'referral',status:'contacted',date:'2026-05-03',notes:[{text:'Referred by Rahul. Interested in CRM system.',date:'2026-05-03 11:00'},{text:'Called. Will send proposal by Friday.',date:'2026-05-05 14:30'}]},
+  {id:3,firstName:'Rohan',lastName:'Mehta',email:'rohan.mehta@designco.com',phone:'+91 7654321098',company:'DesignCo',source:'social',status:'converted',date:'2026-05-05',notes:[{text:'Found us on LinkedIn. Ready to proceed.',date:'2026-05-05 10:00'},{text:'Payment received. Project started.',date:'2026-05-08 09:00'}]},
+  {id:4,firstName:'Sneha',lastName:'Verma',email:'sneha.verma@fintech.in',phone:'+91 6543210987',company:'FinTech India',source:'direct',status:'contacted',date:'2026-05-07',notes:[{text:'Met at Nasscom summit. Exchanged cards.',date:'2026-05-07 16:00'}]},
+  {id:5,firstName:'Arjun',lastName:'Singh',email:'arjun.singh@ecom.co',phone:'+91 9988776655',company:'EcomCo',source:'website',status:'new',date:'2026-05-10',notes:[{text:'Submitted inquiry form about e-commerce dev.',date:'2026-05-10 08:45'}]},
+  {id:6,firstName:'Kavya',lastName:'Nair',email:'kavya.nair@creative.in',phone:'+91 8877665544',company:'Creative Studio',source:'referral',status:'converted',date:'2026-05-11',notes:[{text:'Referred by Priya. Closed deal same day.',date:'2026-05-11 12:00'}]},
+  {id:7,firstName:'Dev',lastName:'Gupta',email:'dev.gupta@logix.com',phone:'+91 7766554433',company:'Logix Corp',source:'social',status:'lost',date:'2026-05-12',notes:[{text:'Went with a competitor. Follow up in 3 months.',date:'2026-05-14 10:00'}]},
+  {id:8,firstName:'Meera',lastName:'Joshi',email:'meera.joshi@health.org',phone:'+91 9900112233',company:'HealthOrg',source:'website',status:'new',date:'2026-05-15',notes:[]},
+];
+let nextId=9;
+let activeLeadId=null;
+
+// ── AUTH ──
+function doLogin(){
+  const u=document.getElementById('loginUser').value.trim();
+  const p=document.getElementById('loginPass').value.trim();
+  const err=document.getElementById('loginError');
+  if(u==='admin'&&p==='admin123'){
+    document.getElementById('loginPage').style.display='none';
+    showView('dashboard');
+  } else { err.style.display='block'; }
+}
+document.getElementById('loginPass').addEventListener('keydown',e=>{ if(e.key==='Enter') doLogin(); });
+function logout(){ document.getElementById('loginPage').style.display='flex'; }
+
+// ── VIEWS ──
+function showView(view){
+  ['dashboard','leads','analytics'].forEach(v=>{ document.getElementById('view-'+v).style.display=v===view?'block':'none'; });
+  document.querySelectorAll('.nav-item').forEach(el=>el.classList.remove('active'));
+  const titles={dashboard:'Dashboard',leads:'All Leads',analytics:'Analytics'};
+  document.getElementById('pageTitle').textContent=titles[view]||view;
+  if(view==='dashboard') renderDashboard();
+  if(view==='leads') renderLeadsTable();
+  if(view==='analytics') renderAnalytics();
+}
+
+function filterByStatus(status){
+  showView('leads');
+  document.getElementById('statusFilter').value=status;
+  renderLeadsTable();
+}
+
+// ── DASHBOARD ──
+function renderDashboard(){
+  const total=leads.length;
+  const newL=leads.filter(l=>l.status==='new').length;
+  const contacted=leads.filter(l=>l.status==='contacted').length;
+  const converted=leads.filter(l=>l.status==='converted').length;
+
+  document.getElementById('statsGrid').innerHTML=
+    statCard('Total Leads',total,'All time','var(--accent)','📋')+
+    statCard('New Leads',newL,'Awaiting contact','var(--accent2)','🆕')+
+    statCard('Contacted',contacted,'In progress','var(--yellow)','📞')+
+    statCard('Converted',converted,'Closed deals','var(--green)','✅');
+
+  const statuses=[{label:'New',val:newL,color:'var(--accent2)'},{label:'Contacted',val:contacted,color:'var(--yellow)'},{label:'Converted',val:converted,color:'var(--green)'},{label:'Lost',val:leads.filter(l=>l.status==='lost').length,color:'var(--red)'}];
+  document.getElementById('statusChart').innerHTML=statuses.map(s=>`<div class="pie-item"><div class="pie-dot" style="background:${s.color}"></div><div class="pie-label">${s.label}</div><div class="pie-val">${s.val}</div></div>`).join('');
+
+  const srcs=['website','referral','social','direct'];
+  const srcLabels={website:'Website',referral:'Referral',social:'Social Media',direct:'Direct'};
+  const srcData=srcs.map(s=>({label:srcLabels[s],val:leads.filter(l=>l.source===s).length}));
+  const maxSrc=Math.max(...srcData.map(s=>s.val),1);
+  document.getElementById('sourceChart').innerHTML=srcData.map(s=>`<div class="bar-item"><div class="bar-label"><span>${s.label}</span><span>${s.val}</span></div><div class="bar-track"><div class="bar-fill" style="width:${s.val/maxSrc*100}%"></div></div></div>`).join('');
+
+  const recent=[...leads].sort((a,b)=>new Date(b.date)-new Date(a.date)).slice(0,5);
+  document.getElementById('recentLeads').innerHTML=recent.map(l=>`<tr><td><div class="lead-name">${l.firstName} ${l.lastName}</div></td><td><div class="lead-sub">${l.email}</div></td><td>${sourceBadge(l.source)}</td><td>${statusPill(l.id,l.status)}</td><td style="color:var(--muted);font-size:0.78rem;">${l.date}</td></tr>`).join('');
+}
+
+function statCard(label,num,sub,color,icon){
+  return `<div class="stat-card" style="--accent-color:${color}"><div class="stat-label">${label}</div><div class="stat-num">${num}</div><div class="stat-sub">${sub}</div><div class="stat-icon">${icon}</div></div>`;
+}
+
+// ── LEADS TABLE ──
+function renderLeadsTable(){
+  const search=document.getElementById('searchInput').value.toLowerCase();
+  const sf=document.getElementById('statusFilter').value;
+  const rf=document.getElementById('sourceFilter').value;
+  let filtered=leads.filter(l=>{
+    const q=`${l.firstName} ${l.lastName} ${l.email} ${l.company||''} ${l.source}`.toLowerCase();
+    return(!search||q.includes(search))&&(!sf||l.status===sf)&&(!rf||l.source===rf);
+  });
+  document.getElementById('leadCount').textContent=`(${filtered.length})`;
+  const body=document.getElementById('leadsTableBody');
+  const empty=document.getElementById('emptyState');
+  if(!filtered.length){ body.innerHTML=''; empty.style.display='block'; return; }
+  empty.style.display='none';
+  body.innerHTML=[...filtered].sort((a,b)=>new Date(b.date)-new Date(a.date)).map(l=>`
+    <tr>
+      <td><div class="lead-name">${l.firstName} ${l.lastName}</div><div class="lead-sub">${l.company||''}</div></td>
+      <td><div class="lead-sub">${l.email}</div></td>
+      <td style="color:var(--muted);font-size:0.82rem;">${l.phone||'—'}</td>
+      <td>${sourceBadge(l.source)}</td>
+      <td>${statusPill(l.id,l.status)}</td>
+      <td style="color:var(--muted);font-size:0.78rem;">${l.date}</td>
+      <td><div class="actions">
+        <button class="btn btn-outline btn-sm" onclick="openNotes(${l.id})" title="Notes">📝 ${l.notes.length}</button>
+        <button class="btn btn-outline btn-sm" onclick="openEditModal(${l.id})" title="Edit">✏️</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteLead(${l.id})" title="Delete">🗑</button>
+      </div></td>
+    </tr>`).join('');
+}
+
+// ── ANALYTICS ──
+function renderAnalytics(){
+  const total=leads.length;
+  const converted=leads.filter(l=>l.status==='converted').length;
+  const lost=leads.filter(l=>l.status==='lost').length;
+  const rate=total?Math.round(converted/total*100):0;
+  const avgNotes=(leads.reduce((a,l)=>a+l.notes.length,0)/(total||1)).toFixed(1);
+
+  document.getElementById('analyticsStats').innerHTML=
+    statCard('Total Leads',total,'All sources','var(--accent)','📊')+
+    statCard('Conversion Rate',rate+'%','Leads → Clients','var(--green)','🎯')+
+    statCard('Lost Leads',lost,'Needs review','var(--red)','📉')+
+    statCard('Avg Notes/Lead',avgNotes,'Engagement score','var(--yellow)','📝');
+
+  const funnel=[{label:'Total Leads',val:total},{label:'Contacted',val:leads.filter(l=>l.status==='contacted'||l.status==='converted').length},{label:'Converted',val:converted}];
+  const maxF=funnel[0].val||1;
+  document.getElementById('funnelChart').innerHTML=funnel.map((f,i)=>`<div class="bar-item"><div class="bar-label"><span>${f.label}</span><span>${f.val}</span></div><div class="bar-track"><div class="bar-fill" style="width:${f.val/maxF*100}%;opacity:${1-i*0.2}"></div></div></div>`).join('');
+
+  const srcMap={website:'Website',referral:'Referral',social:'Social',direct:'Direct'};
+  const maxSP=Math.max(...Object.keys(srcMap).map(s=>leads.filter(l=>l.source===s).length),1);
+  document.getElementById('sourcePerfChart').innerHTML=Object.keys(srcMap).map(s=>{
+    const cnt=leads.filter(l=>l.source===s).length;
+    const conv=leads.filter(l=>l.source===s&&l.status==='converted').length;
+    return `<div class="bar-item"><div class="bar-label"><span>${srcMap[s]}</span><span>${cnt} leads · ${conv} converted</span></div><div class="bar-track"><div class="bar-fill" style="width:${cnt/maxSP*100}%"></div></div></div>`;
+  }).join('');
+}
+
+// ── BADGES ──
+function sourceBadge(s){const m={website:'source-website Website',referral:'source-referral Referral',social:'source-social Social',direct:'source-direct Direct'};const[cls,label]=(m[s]||'source-direct '+s).split(' ');return`<span class="source-badge ${cls}">${label}</span>`;}
+function statusPill(id,status){const m={new:'status-new New',contacted:'status-contacted Contacted',converted:'status-converted Converted',lost:'status-lost Lost'};const[cls,label]=(m[status]||'status-new New').split(' ');return`<button class="status-pill ${cls}" onclick="cycleStatus(${id})" title="Click to update status">${label}</button>`;}
+function cycleStatus(id){const next={new:'contacted',contacted:'converted',converted:'lost',lost:'new'};const lead=leads.find(l=>l.id===id);if(!lead)return;lead.status=next[lead.status];showToast(`Status → ${lead.status}`);renderLeadsTable();renderDashboard();}
+
+// ── MODAL ──
+function openAddModal(){
+  document.getElementById('modalTitle').textContent='Add New Lead';
+  document.getElementById('editId').value='';
+  ['fName','lName','fEmail','fPhone','fCompany','fNote'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('fSource').value='website';
+  document.getElementById('fStatus').value='new';
+  document.getElementById('leadModal').classList.add('show');
+}
+function openEditModal(id){
+  const l=leads.find(l=>l.id===id);if(!l)return;
+  document.getElementById('modalTitle').textContent='Edit Lead';
+  document.getElementById('editId').value=id;
+  document.getElementById('fName').value=l.firstName;
+  document.getElementById('lName').value=l.lastName;
+  document.getElementById('fEmail').value=l.email;
+  document.getElementById('fPhone').value=l.phone||'';
+  document.getElementById('fCompany').value=l.company||'';
+  document.getElementById('fSource').value=l.source;
+  document.getElementById('fStatus').value=l.status;
+  document.getElementById('fNote').value='';
+  document.getElementById('leadModal').classList.add('show');
+}
+function closeModal(){document.getElementById('leadModal').classList.remove('show');}
+function saveLead(){
+  const firstName=document.getElementById('fName').value.trim();
+  const lastName=document.getElementById('lName').value.trim();
+  const email=document.getElementById('fEmail').value.trim();
+  const phone=document.getElementById('fPhone').value.trim();
+  const company=document.getElementById('fCompany').value.trim();
+  const source=document.getElementById('fSource').value;
+  const status=document.getElementById('fStatus').value;
+  const noteText=document.getElementById('fNote').value.trim();
+  const editId=document.getElementById('editId').value;
+  if(!firstName||!lastName||!email){showToast('❌ Name and email are required');return;}
+  if(!/\S+@\S+\.\S+/.test(email)){showToast('❌ Invalid email address');return;}
+  if(editId){
+    const lead=leads.find(l=>l.id===parseInt(editId));
+    Object.assign(lead,{firstName,lastName,email,phone,company,source,status});
+    if(noteText)lead.notes.push({text:noteText,date:now()});
+    showToast('✅ Lead updated');
+  } else {
+    const newLead={id:nextId++,firstName,lastName,email,phone,company,source,status,date:today(),notes:[]};
+    if(noteText)newLead.notes.push({text:noteText,date:now()});
+    leads.push(newLead);
+    showToast('✅ New lead added');
+  }
+  closeModal();renderLeadsTable();renderDashboard();
+}
+
+// ── DELETE ──
+function deleteLead(id){
+  if(!confirm('Delete this lead?'))return;
+  leads=leads.filter(l=>l.id!==id);
+  if(activeLeadId===id)closeNotes();
+  showToast('🗑 Lead deleted');
+  renderLeadsTable();renderDashboard();
+}
+
+// ── NOTES ──
+function openNotes(id){
+  activeLeadId=id;
+  const lead=leads.find(l=>l.id===id);
+  document.getElementById('notesPanelName').textContent=`${lead.firstName} ${lead.lastName}`;
+  document.getElementById('notesPanelEmail').textContent=lead.email;
+  renderNotesList(lead);
+  document.getElementById('notesPanel').classList.add('open');
+}
+function closeNotes(){document.getElementById('notesPanel').classList.remove('open');activeLeadId=null;}
+function renderNotesList(lead){
+  const list=document.getElementById('notesList');
+  if(!lead.notes.length){list.innerHTML='<div class="empty"><p>No notes yet. Add a follow-up below.</p></div>';return;}
+  list.innerHTML=[...lead.notes].reverse().map(n=>`<div class="note-item"><div class="note-text">${n.text}</div><div class="note-meta">${n.date}</div></div>`).join('');
+}
+function addNote(){
+  const text=document.getElementById('newNoteText').value.trim();
+  if(!text||!activeLeadId)return;
+  const lead=leads.find(l=>l.id===activeLeadId);
+  lead.notes.push({text,date:now()});
+  document.getElementById('newNoteText').value='';
+  renderNotesList(lead);
+  renderLeadsTable();
+  showToast('📝 Note added');
+}
+
+// ── EXPORT ──
+function exportCSV(){
+  const headers=['ID','First Name','Last Name','Email','Phone','Company','Source','Status','Date','Notes Count'];
+  const rows=leads.map(l=>[l.id,l.firstName,l.lastName,l.email,l.phone||'',l.company||'',l.source,l.status,l.date,l.notes.length]);
+  const csv=[headers,...rows].map(r=>r.map(v=>`"${v}"`).join(',')).join('\n');
+  const blob=new Blob([csv],{type:'text/csv'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);a.download='FUTURE_FS_02_leads.csv';a.click();
+  showToast('📥 CSV exported');
+}
+
+// ── UTILS ──
+function today(){return new Date().toISOString().split('T')[0];}
+function now(){return new Date().toLocaleString('en-IN',{timeZone:'Asia/Kolkata'});}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000);}
+
+// ── EVENTS ──
+document.getElementById('leadModal').addEventListener('click',e=>{if(e.target===e.currentTarget)closeModal();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeModal();closeNotes();}});
+</script>
+</body>
+</html>
