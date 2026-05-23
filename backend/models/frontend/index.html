@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LeadFlow CRM | Client Management System</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Login Section -->
+        <div id="loginSection" class="login-section">
+            <div class="login-card">
+                <div class="login-header">
+                    <i class="fas fa-mug-hot"></i>
+                    <h2>LeadFlow CRM</h2>
+                    <p>Client Lead Management System</p>
+                </div>
+                <form id="loginForm">
+                    <input type="text" id="loginUsername" placeholder="Username" required>
+                    <input type="password" id="loginPassword" placeholder="Password" required>
+                    <button type="submit">Login <i class="fas fa-arrow-right"></i></button>
+                </form>
+                <p class="setup-hint">First time? Run POST /api/auth/setup to create admin</p>
+            </div>
+        </div>
+
+        <!-- Dashboard Section -->
+        <div id="dashboardSection" class="dashboard-section" style="display: none;">
+            <!-- Header -->
+            <div class="dashboard-header">
+                <div class="logo">
+                    <i class="fas fa-mug-hot"></i>
+                    <span>LeadFlow CRM</span>
+                </div>
+                <div class="header-actions">
+                    <span id="userDisplay" class="user-name"></span>
+                    <button id="logoutBtn" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+                </div>
+            </div>
+
+            <!-- Stats -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <i class="fas fa-users"></i>
+                    <div class="stat-info">
+                        <h3 id="totalLeads">0</h3>
+                        <p>Total Leads</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-envelope"></i>
+                    <div class="stat-info">
+                        <h3 id="newLeads">0</h3>
+                        <p>New Leads</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-phone-alt"></i>
+                    <div class="stat-info">
+                        <h3 id="contactedLeads">0</h3>
+                        <p>Contacted</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-check-circle"></i>
+                    <div class="stat-info">
+                        <h3 id="convertedLeads">0</h3>
+                        <p>Converted</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Add Lead Form -->
+            <div class="add-lead-section">
+                <div class="section-title">
+                    <i class="fas fa-user-plus"></i>
+                    <h3>Add New Lead</h3>
+                </div>
+                <form id="addLeadForm" class="lead-form">
+                    <input type="text" id="leadName" placeholder="Full Name" required>
+                    <input type="email" id="leadEmail" placeholder="Email Address" required>
+                    <input type="tel" id="leadPhone" placeholder="Phone Number">
+                    <select id="leadSource">
+                        <option value="Website">Website</option>
+                        <option value="Social Media">Social Media</option>
+                        <option value="Referral">Referral</option>
+                        <option value="Other">Other</option>
+                    </select>
+                    <button type="submit"><i class="fas fa-plus"></i> Add Lead</button>
+                </form>
+            </div>
+
+            <!-- Leads List -->
+            <div class="leads-section">
+                <div class="section-title">
+                    <i class="fas fa-list"></i>
+                    <h3>All Leads</h3>
+                    <div class="filter-buttons">
+                        <button class="filter-btn active" data-filter="all">All</button>
+                        <button class="filter-btn" data-filter="New">New</button>
+                        <button class="filter-btn" data-filter="Contacted">Contacted</button>
+                        <button class="filter-btn" data-filter="Converted">Converted</button>
+                    </div>
+                </div>
+                <div id="leadsList" class="leads-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lead Detail Modal -->
+    <div id="leadModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Lead Details</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body" id="modalBody"></div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
